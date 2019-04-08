@@ -1,9 +1,11 @@
-shini [![Build Status](https://travis-ci.org/wallyhall/shini.svg?branch=master)](https://travis-ci.org/wallyhall/shini)
+shini
 =====
 
-A small, minimialist, <s>portable</s> <em>compatible</em><sup>1</sup> `/bin/sh` routine for reading (and now very alpha-quality writing) of INI files.
+A small, minimalist, <s>portable</s> <em>compatible</em><sup>1</sup> `/bin/bash` routine for reading of INI files.
 
-<em><sup>1</sup> This script previously attempted to be "portable", that is to say - written in a manner that it would reliably have a good chance of running anywhere with no specific implementation coded inside.  In order to gain usable performance on INI files bigger than "very small", it has since been modified to include shell specific implementation for recent versions of `zsh`, `ksh` and `bash` - considerably increasing performance at the cost of code complexity.  Therefore, I am calling it 'compatible' herein.</em>
+<em><sup>1</sup> This script previously attempted to be "portable", that is to say - written in a manner that it would reliably have a good chance of running anywhere with no specific implementation coded inside.  In order to gain usable performance on INI files bigger than "very small", it has since been modified to include shell specific implementation for recent versions of `bash` - considerably increasing performance at the cost of code complexity.  Therefore, I am calling it 'compatible' herein.</em>
+
+NOTE by pachi-belero: this fork contains a very simplified version of the original `shini`, which disables callbacks and writing, as well as support for old shell versions (and any shell different from bash).
 
 ## About
 
@@ -11,37 +13,23 @@ A small, minimialist, <s>portable</s> <em>compatible</em><sup>1</sup> `/bin/sh` 
 As above.  It's a small set of functions written for inclusion in shell scripts, released under the MIT license.
 
 ### Is it slow?
-Shell scripting was never designed with speed for this kind of processing in mind.  That said, on recent versions of `bash` (version 3 or newer) and `zsh` (and to a lesser extent `ksh` version 93 and newer) the performance is quite acceptable.
+Shell scripting was never designed with speed for this kind of processing in mind.  That said, on recent versions of `bash` (version 3 or newer) the performance is quite acceptable.
 
-Other/older shells will fall back to expensive calls to `grep` and `sed`, an will perform significantly slower (potentially hundreds of times slower).
-
-On an 2012 i7 MacBook, a 1900 line INI file will fully parse within 0.6s - and a single section therein in under 0.24s (`zsh`):
+On an 2012 i7 MacBook, a 1900 line INI file will fully parse within 0.6s:
 
     $ wc -l tests/php.ini 
     1917 tests/php.ini
 
-    $ time zsh ./test_perf.sh > /dev/null
-    real    0m0.595s
-
     $ time bash ./test_perf.sh > /dev/null
     real    0m0.838s
-
-    $ time ksh ./test_perf.sh > /dev/null
-    real    0m2.901s
-
-    $ time zsh ./test_perf.sh opcache > /dev/null
-    real    0m0.237s
 
     $ time bash ./test_perf.sh opcache > /dev/null
     real    0m0.313s
 
-    $ time ksh ./test_perf.sh opcache > /dev/null
-    real    0m0.543s
-
 ### Why do I need it?
 You probably don't.  But if you have or ever do find yourself writing a shell script which:
  * Needs system or user specific settings
- * Needs to read (or write to) an existing INI file
+ * Needs to read an existing INI file
 
 ... then you might find `shini` saves you a lot of time, and makes things safer.
 
@@ -88,8 +76,8 @@ Remember:
 Best advice, if in doubt:
 
 ```
-sudo chown root:root shini.sh
-sudo chmod 644 shini.sh
+sudo chown root:root shell-ini-parser.sh
+sudo chmod 644 shell-ini-parser.sh
 ```
 
 ## Usage
@@ -127,62 +115,30 @@ Parsing...
 Complete.
 ```
 
-You've just execute the shipped example/test script (`example.sh`) - which parses an example INI file (`example.ini`) - outputting the content in the format `[section].[key]=[value]`.
+You've just executed the shipped example/test script (`example.sh`) - which parses an example INI file (`example.ini`) - outputting the content in the format `[section].[key]=[value]`.
 
 ## Cool.  Now show me how to include and use it myself!
 
-Inclusion of `shini` in your own project is easy.  You can put the content of `shini.sh` inline with your own code (not recommended, but acceptable.  Make sure you appropriately include the MIT license...), or 'source' it externally - i.e.:
+Inclusion of `shini` in your own project is easy.  You can put the content of `shell-ini-parser.sh` inline with your own code (not recommended, but acceptable.  Make sure you appropriately include the MIT license...), or 'source' it externally - i.e.:
 
 ```
-. "$(dirname "$0")/shini.sh"
-. "/usr/local/bin/shini.sh"
+. "$(dirname "$0")/shell-ini-parser.sh"
+. "/usr/local/bin/shell-ini-parser.sh"
 ... etc
 ```
 
-`shini` works by parsing INI files line by line - skipping comments and invoking callback functions on errors and parsed values.
+`shini` works by parsing INI files line by line - skipping comments.
 
-If you don't care about handling parse errors (`shini` will do this for you by default) then you only need define one callback function:
+Each argument can should be carefully handled - always double quote (unless you're certain what you're doing).  Never forget you can't guarantee what is in the INI file being parsed - it could be with evil intent.
 
-```
-__shini_parsed ()
-{
-  # "$1" - section
-  # "$2" - key
-  # "$3" - value
-}
-```
-
-Each argument can should be carefully handled - always double quote (unless you're certain what you're doing).  Never forget you can't guraruntee what is in the INI file being parsed - it could be with evil intent.
-
-When you're ready, invoke the parse function:
+When you're ready, invoke the parse function and (optionally) specify the specific INI section you're interested in:
 
 ```
-shini_parse "settings.ini"
+shini_parse_section "settings.ini"
+shini_parse_section "settings.ini" "SomeSection"
 ```
-
-(For increased performance on really large INI files, you can call `shini_parse_section` and specify the specific INI section you're interested in: `shini_parse_section "settings.ini" "SomeSection"`)
 
 Bingo.  A full (and simple example) can be found in `example.sh`.
-
-### ...and what about writing data too?
-
-Easy!
-
-```
-shini_write "filename.ini" "SECTION_NAME" "key_name" "Some value here!"
-```
-
-This will update existing values and append new ones.  As always - give really careful thought to your INI file filesystem permissions before allowing users to arbitarily change the content!
-
-### Can I override the error handling?
-
-Yes.  Just declare any or all of the following functions:
-
-```
-__shini_parse_error $LINE_NUM "$LINE"  # Error parsing a specific line
-__shini_no_file_passed                 # No filename passed to the shini_parse()
-__shini_file_unreadable "$INI_FILE"    # INI file wasn't readable (or wasn't a file)
-```
 
 ## Known caveats, etc
 
