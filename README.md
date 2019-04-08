@@ -131,14 +131,16 @@ Inclusion of `shini` in your own project is easy.  You can put the content of `s
 
 Each argument can should be carefully handled - always double quote (unless you're certain what you're doing).  Never forget you can't guarantee what is in the INI file being parsed - it could be with evil intent.
 
-When you're ready, invoke the parse function and (optionally) specify the specific INI section you're interested in:
+When you're ready, invoke the parse function and (optionally) specify the specific INI section you're interested in. You can also optionally set the prefix used to name variables:
 
 ```
 shini_parse_section "settings.ini"
 shini_parse_section "settings.ini" "SomeSection"
+shini_parse_section "settings.ini" "" "INI"
 ```
 
-Bingo.  A full (and simple example) can be found in `example.sh`.
+Bingo. All the variables found will be set in the form PREFIX__SECTION__NAME (note the double underscores and that PREFIX defaults to "SHINI"). Note that the variable names will always be uppercase.
+A full (and simple) example can be found in `example.sh`. You can run `. ./example.sh` and see the new variables set, such as SHINI__SECTION1__NAME.
 
 ## Known caveats, etc
 
