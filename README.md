@@ -95,7 +95,7 @@ cd shini-master/
 sh example.sh
 ```
 
-You should be presented with some output like this:
+You should be presented with some output like this (but slightly different in the simplified version):
 
 ```
 Parsing...
