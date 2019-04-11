@@ -94,11 +94,12 @@ shini_parse_section()
                 [ "$SHINI_SKIP_TO_SECTION" = "$SHINI_SECTION" ] && SHINI_SECTION_FOUND=0;
             fi
 
+            SHINI_LINE_NUM=$((SHINI_LINE_NUM+1))
             continue
         fi
         
         # Skip over sections we don't care about, if a specific section was specified
-        [ "$SHINI_SKIP_TO_SECTION" != '' ] && [ $SHINI_SECTION_FOUND -ne 0 ] && continue;
+        [ "$SHINI_SKIP_TO_SECTION" != '' ] && [ $SHINI_SECTION_FOUND -ne 0 ] && SHINI_LINE_NUM=$((SHINI_LINE_NUM+1)) && continue;
 		
         # Check for new values
         if shini_regex_match "$SHINI_LINE" "^${RX_WS}*${RX_KEY}${RX_KEY}*${RX_WS}*="; then
@@ -115,14 +116,15 @@ shini_parse_section()
             # Name converted to uppercase with ^^
             echo Setting ${SHINI_PREFIX}__${SHINI_SECTION^^}__${shini_key^^}...
             eval ${SHINI_PREFIX}__${SHINI_SECTION^^}__${shini_key^^}="\"$shini_value\""
-			
+
+            SHINI_LINE_NUM=$((SHINI_LINE_NUM+1))
             continue
         fi
 		
         # Announce parse errors
         if [ "$SHINI_LINE" != '' ] &&
-          shini_regex_match "$SHINI_LINE" "^${RX_WS}*;.*$" &&
-          shini_regex_match "$SHINI_LINE" "^${RX_WS}*$"; then
+          ! shini_regex_match "$SHINI_LINE" "^${RX_WS}*;.*$" &&
+          ! shini_regex_match "$SHINI_LINE" "^${RX_WS}*$"; then
           printf 'Unable to parse line %d:\n  `%s`\n' $SHINI_LINE_NUM "$SHINI_LINE"
         fi
 		
