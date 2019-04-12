@@ -1,12 +1,24 @@
 #!/bin/bash
 # shell-ini-parser (shini) - compatible INI library for sh
-# Modified (simplified) version (no support for callbacks or writing). Needs bash version 3 or newer
+# Modified (simplified) version (no callbacks or writing). Needs bash version 3 or newer
 #
 # This code is released freely under the MIT license - see the shipped LICENSE document.
 # For the latest version etc, please see https://github.com/wallyhall/shini
 #
-# Simplified usage (note the second parameter is optional):
-# shini_parse_section "filename.ini" ["section_name"]
+# Usage (note that the second and third parameters are optional):
+#  . /path/to/shell-ini-parser.sh   # First, source this file (only once)
+#  shini_parse_section "filename.ini" ["section_name"] ["var_naming_prefix"]
+#
+#   section_name:  parse only that INI file section (speed up); can be empty
+#   var_naming_prefix:  (default: SHINI) defines the naming convention for the
+#                       environment variables that will be defined as a result
+#                       of parsing the INI file:  PREFIX__SECTION__VARIABLE
+#
+# NOTE: DO NOT use redirection with pipes ( >/dev/null or similar are OK),
+# complex commands (parenthesis, semi-colon, $( ), ``, etc.) because those
+# will cause the function to be called in a sub-shell, and variables defined
+# will be not "visible" for the script that calls the function. See info on:
+# https://www.gnu.org/software/bash/manual/bashref.html#Command-Execution-Environment
 #
 #
 # The MIT License (MIT)
@@ -58,15 +70,15 @@ shini_parse_section()
     SHINI_SKIP_TO_SECTION=''
     SHINI_PREFIX='SHINI'
     SHINI_SECTION_FOUND=-1
-	
-	if [ $# -ge 2 ] && [ ! -z "$2" ]; then
+
+    if [ $# -ge 2 ] && [ ! -z "$2" ]; then
         SHINI_SKIP_TO_SECTION="$2"
     fi
-	
+
     if [ $# -ge 3 ] && [ ! -z "$3" ]; then
         SHINI_PREFIX="${3^^}"  # Converted to uppercase
     fi
-	
+
     if [ $# -lt 1 ]; then
         printf 'Argument 1 needs to specify the INI file to parse.\n' 1>&2
         exit 254
@@ -81,6 +93,7 @@ shini_parse_section()
     SHINI_LINE_NUM=0
     SHINI_SECTION=''
     while read SHINI_LINE || [ -n "$SHINI_LINE" ]; do  # -n $SHINI_LINE catches final line if not empty
+        SHINI_LINE_NUM=$((SHINI_LINE_NUM+1))
         # Check for new sections
         if shini_regex_match "$SHINI_LINE" "^${RX_WS}*\[${RX_SECTION}${RX_SECTION}*\]${RX_WS}*$"; then
             shini_regex_replace "$SHINI_LINE" "^${RX_WS}*\[(${RX_SECTION}${RX_SECTION}*)\]${RX_WS}*$" "\1"
@@ -94,13 +107,12 @@ shini_parse_section()
                 [ "$SHINI_SKIP_TO_SECTION" = "$SHINI_SECTION" ] && SHINI_SECTION_FOUND=0;
             fi
 
-            SHINI_LINE_NUM=$((SHINI_LINE_NUM+1))
             continue
         fi
         
         # Skip over sections we don't care about, if a specific section was specified
-        [ "$SHINI_SKIP_TO_SECTION" != '' ] && [ $SHINI_SECTION_FOUND -ne 0 ] && SHINI_LINE_NUM=$((SHINI_LINE_NUM+1)) && continue;
-		
+        [ "$SHINI_SKIP_TO_SECTION" != '' ] && [ $SHINI_SECTION_FOUND -ne 0 ] && continue;
+        
         # Check for new values
         if shini_regex_match "$SHINI_LINE" "^${RX_WS}*${RX_KEY}${RX_KEY}*${RX_WS}*="; then
             shini_regex_replace "$SHINI_LINE" "^${RX_WS}*(${RX_KEY}${RX_KEY}*)${RX_WS}*=.*$"
@@ -108,7 +120,7 @@ shini_parse_section()
             
             shini_regex_replace "$SHINI_LINE" "^${RX_WS}*${RX_KEY}${RX_KEY}*${RX_WS}*=${RX_WS}*${RX_QUOTE}{0,1}(${RX_VALUE}*)${RX_QUOTE}{0,1}(${RX_WS}*\;.*)*$"
             shini_value=$shini_retval
-			
+            
             if shini_regex_match "$SHINI_LINE" "^0x${RX_HEX}${RX_HEX}*$"; then
                 shini_value=$(printf '%d' "$shini_value")
             fi
@@ -117,17 +129,14 @@ shini_parse_section()
             echo Setting ${SHINI_PREFIX}__${SHINI_SECTION^^}__${shini_key^^}...
             eval ${SHINI_PREFIX}__${SHINI_SECTION^^}__${shini_key^^}="\"$shini_value\""
 
-            SHINI_LINE_NUM=$((SHINI_LINE_NUM+1))
             continue
         fi
-		
+        
         # Announce parse errors
         if [ "$SHINI_LINE" != '' ] &&
           ! shini_regex_match "$SHINI_LINE" "^${RX_WS}*;.*$" &&
           ! shini_regex_match "$SHINI_LINE" "^${RX_WS}*$"; then
-          printf 'Unable to parse line %d:\n  `%s`\n' $SHINI_LINE_NUM "$SHINI_LINE"
+          printf 'Unable to parse line %d:\n  `%s`\n' $SHINI_LINE_NUM "$SHINI_LINE" 1>&2
         fi
-		
-        SHINI_LINE_NUM=$((SHINI_LINE_NUM+1))
     done < "$1" # INI_FILE
 }
