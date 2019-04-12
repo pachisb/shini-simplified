@@ -125,14 +125,9 @@ shini_parse_section()
                 shini_value=$(printf '%d' "$shini_value")
             fi
 
-            # The action (__shini_parsed function originally): set an environment variable if parsed OK
-            SHINI_VARNAME=${SHINI_PREFIX}__${SHINI_SECTION^^}__${shini_key^^}
-            # Change dots and other chars into underscores (bash variable names cannot contain them)
-            SHINI_VARNAME=${SHINI_VARNAME//[![:alnum:]]/_}
             # Name converted to uppercase with ^^
-            SHINI_VARNAME=${SHINI_VARNAME//./_}
-            echo Setting ${SHINI_VARNAME} ...
-            eval ${SHINI_VARNAME}="\"$shini_value\""
+            echo Setting ${SHINI_PREFIX}__${SHINI_SECTION^^}__${shini_key^^}...
+            eval ${SHINI_PREFIX}__${SHINI_SECTION^^}__${shini_key^^}="\"$shini_value\""
 
             continue
         fi
