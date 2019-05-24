@@ -5,7 +5,7 @@ A small, minimalist, <s>portable</s> <em>compatible</em><sup>1</sup> `/bin/bash`
 
 <em><sup>1</sup> This script previously attempted to be "portable", that is to say - written in a manner that it would reliably have a good chance of running anywhere with no specific implementation coded inside.  In order to gain usable performance on INI files bigger than "very small", it has since been modified to include shell specific implementation for recent versions of `bash` - considerably increasing performance at the cost of code complexity.  Therefore, I am calling it 'compatible' herein.</em>
 
-NOTE by pachi-belero: this fork contains a very simplified version of the original `shini`, which disables callbacks and writing, as well as support for old shell versions (and any shell different from bash).
+**NOTE** by pachi-belero: this fork contains a very simplified version of the original `shini` which disables callbacks and writing, and **supports only bash version 3** or newer.
 
 ## About
 
