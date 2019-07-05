@@ -12,7 +12,7 @@ A small, minimalist, <s>portable</s> <em>compatible</em><sup>1</sup> `/bin/bash`
 ### What is `shini`?
 As above. It's a small set of functions written for inclusion in shell scripts, released under the MIT license.
 
-[pachi-belero](https://github.com/pachi-belero/) has [forked to create a simplified version](https://github.com/pachi-belero/shini-simplified) which is specifically for `bash >= 3`.  If this better meets your needs, please embrace the nature of open-source and support his work!  (And send my blessings his way.)
+[pachi-belero](https://github.com/pachi-belero/) has [forked to create this simplified version](https://github.com/pachi-belero/shini-simplified) which is specifically for `bash >= 3`.  If this better meets your needs, please embrace the nature of open-source and support his work! (And send my blessings his way.). The original work from [wallyhall](https://github.com/wallyhall/) is [in this repository](https://github.com/wallyhall/shini).
 
 ### Is it slow?
 Shell scripting was never designed with speed for this kind of processing in mind. That said, on recent versions of `bash` (version 3 or newer) the performance is quite acceptable.
