@@ -22,19 +22,19 @@
 #
 #
 # The MIT License (MIT)
-# 
+#
 # Copyright (c) 2014 wallyhall (Matthew Hall)
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -102,25 +102,25 @@ shini_parse_section()
             if [ "$SHINI_SKIP_TO_SECTION" != '' ]; then
                 # stop once specific section is finished
                 [ $SHINI_SECTION_FOUND -eq 0 ] && break;
-                
+
                 # mark the specified section as found
                 [ "$SHINI_SKIP_TO_SECTION" = "$SHINI_SECTION" ] && SHINI_SECTION_FOUND=0;
             fi
 
             continue
         fi
-        
+
         # Skip over sections we don't care about, if a specific section was specified
         [ "$SHINI_SKIP_TO_SECTION" != '' ] && [ $SHINI_SECTION_FOUND -ne 0 ] && continue;
-        
+
         # Check for new values
         if shini_regex_match "$SHINI_LINE" "^${RX_WS}*${RX_KEY}${RX_KEY}*${RX_WS}*="; then
             shini_regex_replace "$SHINI_LINE" "^${RX_WS}*(${RX_KEY}${RX_KEY}*)${RX_WS}*=.*$"
             shini_key=$shini_retval
-            
+
             shini_regex_replace "$SHINI_LINE" "^${RX_WS}*${RX_KEY}${RX_KEY}*${RX_WS}*=${RX_WS}*${RX_QUOTE}{0,1}(${RX_VALUE}*)${RX_QUOTE}{0,1}(${RX_WS}*\;.*)*$"
             shini_value=$shini_retval
-            
+
             if shini_regex_match "$SHINI_LINE" "^0x${RX_HEX}${RX_HEX}*$"; then
                 shini_value=$(printf '%d' "$shini_value")
             fi
@@ -135,12 +135,12 @@ shini_parse_section()
 
             continue
         fi
-        
+
         # Announce parse errors
         if [ "$SHINI_LINE" != '' ] &&
           ! shini_regex_match "$SHINI_LINE" "^${RX_WS}*;.*$" &&
           ! shini_regex_match "$SHINI_LINE" "^${RX_WS}*$"; then
-          printf 'Unable to parse line %d:\n  `%s`\n' $SHINI_LINE_NUM "$SHINI_LINE" 1>&2
+            printf 'Unable to parse line %d:\n  `%s`\n' $SHINI_LINE_NUM "$SHINI_LINE" 1>&2
         fi
     done < "$1" # INI_FILE
 }
