@@ -5,14 +5,12 @@ A small, minimalist, <s>portable</s> <em>compatible</em><sup>1</sup> `/bin/bash`
 
 <em><sup>1</sup> This script previously attempted to be "portable", that is to say - written in a manner that it would reliably have a good chance of running anywhere with no specific implementation coded inside. In order to gain usable performance on INI files bigger than "very small", it has since been modified to include shell specific implementation for recent versions of `bash` - considerably increasing performance at the cost of code complexity. Therefore, I am calling it 'compatible' herein.</em>
 
-**NOTE** by pachi-belero: this fork contains a very simplified version of the original `shini` which disables callbacks and writing, and **supports only bash version 3** or newer.
-
 ## About
 
 ### What is `shini`?
 As above. It's a small set of functions written for inclusion in shell scripts, released under the MIT license.
 
-[pachi-belero](https://github.com/pachi-belero/) has [forked to create this simplified version](https://github.com/pachi-belero/shini-simplified) which is specifically for `bash >= 3`.  If this better meets your needs, please embrace the nature of open-source and support his work! (And send my blessings his way.). The original work from [wallyhall](https://github.com/wallyhall/) is [in this repository](https://github.com/wallyhall/shini).
+**NOTE**: [pachisb](https://github.com/pachisb/) has [forked to create this simplified version](https://github.com/pachisb/shini-simplified) which is specifically for `bash >= 3`, and disables callbacks and writing. If this better meets your needs, please embrace the nature of open-source and support his work! (And send my blessings his way.). The original work from [wallyhall](https://github.com/wallyhall/) is [in this repository](https://github.com/wallyhall/shini).
 
 ### Is it slow?
 Shell scripting was never designed with speed for this kind of processing in mind. That said, on recent versions of `bash` (version 3 or newer) the performance is quite acceptable.

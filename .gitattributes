@@ -1,5 +1,5 @@
 ###############################################################################
-# Changed by pachi-belero: Set line endings behavior for the working dir.
+# Changed by pachisb: Set line endings behavior for the working dir.
 ###############################################################################
 * text=auto eol=lf
 #NOTE: for some file types something like this might be needed if LF is not OK
